@@ -15,23 +15,19 @@ export const INVITE = {
   rsvpWhatsApp: '',
   events: {
     diwali: {
-      date: '24th October 2026',
-      day: 'Saturday',
-      time: '6:00 PM Onwards',
-      venue: 'Our Residence',
+      date: '08 November  2026',
+      day: 'sunday ',
+      
     },
     govardhan: {
-      date: '26th October 2026',
+      date: '9 November 2026',
       day: 'Monday',
-      time: '11:00 AM Onwards',
-      venue: 'Our Residence',
+      
     },
     bhaidooj: {
-      date: '25th October 2026',
-      day: 'Sunday',
-      time: '4:00 PM Onwards',
-      venue: 'Our Residence',
-    },
+      date: '11 November 2026',
+      day: 'Wednesday',
+      
   },
 };
 
