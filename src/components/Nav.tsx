@@ -3,7 +3,7 @@ import { PAGES, type PageId } from '../config';
 import { useApp } from '../context';
 
 export default function Nav() {
-  const { page, go, viewMode, toggleViewMode } = useApp();
+  const { page, go } = useApp();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -42,51 +42,40 @@ export default function Nav() {
           </span>
         </div>
 
-        {/* Desktop horizontal nav (shown in desktop full view) */}
-        {viewMode === 'full' && (
-          <nav aria-label="Main" className="pointer-events-auto absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
-            <ul className="gold-border flex items-center gap-1 rounded-full px-3 py-1.5 shadow-[0_0_24px_rgba(255,190,80,.25)] backdrop-blur-md">
-              {PAGES.map((p) => {
-                const isActive = page === p.id;
-                return (
-                  <li key={p.id}>
-                    <button
-                      onClick={() => nav(p.id)}
-                      aria-current={isActive ? 'page' : undefined}
-                      className={`group relative px-3.5 py-1.5 font-serif text-[17px] font-semibold tracking-wide transition xl:px-4 cursor-pointer ${
-                        isActive ? 'text-gold-200' : 'text-gold-300/80 hover:text-gold-200'
+        {/* Desktop horizontal nav (shown on laptop & desktop) */}
+        <nav aria-label="Main" className="pointer-events-auto absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
+          <ul className="gold-border flex items-center gap-1 rounded-full px-3 py-1.5 shadow-[0_0_24px_rgba(255,190,80,.25)] backdrop-blur-md bg-royal-950/60">
+            {PAGES.map((p) => {
+              const isActive = page === p.id;
+              return (
+                <li key={p.id}>
+                  <button
+                    onClick={() => nav(p.id)}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`group relative px-3.5 py-1.5 font-serif text-[17px] font-semibold tracking-wide transition xl:px-4 cursor-pointer ${
+                      isActive ? 'text-gold-200' : 'text-gold-300/80 hover:text-gold-200'
+                    }`}
+                  >
+                    {p.label}
+                    <span
+                      className={`absolute inset-x-3 -bottom-0.5 h-[2px] origin-center bg-gradient-to-r from-transparent via-gold-300 to-transparent transition-transform duration-300 ${
+                        isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                       }`}
-                    >
-                      {p.label}
-                      <span
-                        className={`absolute inset-x-3 -bottom-0.5 h-[2px] origin-center bg-gradient-to-r from-transparent via-gold-300 to-transparent transition-transform duration-300 ${
-                          isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                        }`}
-                      />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        )}
+                    />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-        {/* Right controls: View mode switcher and Patrika Studio official link */}
+        {/* Right controls: Patrika Studio official link */}
         <div className="pointer-events-auto flex items-center gap-2">
-          {/* Desktop View Mode Switcher: Mobile Phone View vs Full View */}
-          <button
-            onClick={toggleViewMode}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-gold-400/60 bg-royal-900/85 px-3 py-1.5 font-serif text-xs text-gold-200 tracking-wider hover:text-white hover:border-gold-300 transition shadow-[0_0_14px_rgba(255,190,80,.3)] cursor-pointer"
-            title={viewMode === 'mobile' ? 'Switch to Full Desktop View' : 'Switch to Smartphone Mobile View'}
-          >
-            <span>{viewMode === 'mobile' ? '📱 Mobile View' : '🖥️ Full View'}</span>
-          </button>
-
           <a
             href="https://patrikastudio.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 rounded-full border border-gold-400/50 bg-royal-900/80 px-2.5 py-1 sm:px-3 sm:py-1.5 font-serif text-[11px] sm:text-xs text-gold-300 tracking-wider hover:text-gold-200 hover:border-gold-300 transition shadow-[0_0_10px_rgba(255,190,80,.2)]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-gold-400/50 bg-royal-900/80 px-2.5 py-1 sm:px-3.5 sm:py-1.5 font-serif text-[11px] sm:text-xs text-gold-300 tracking-wider hover:text-gold-200 hover:border-gold-300 transition shadow-[0_0_10px_rgba(255,190,80,.2)]"
             title="Visit Patrika Studio official website"
           >
             <span className="hidden sm:inline">patrikastudio.com</span>

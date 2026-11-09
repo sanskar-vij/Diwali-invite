@@ -49,6 +49,13 @@ export const InviteGlyph = (p: P) => (
     <path d="M20 19l1.8 3.8 4.2.5-3.1 2.9.8 4.1-3.7-2-3.7 2 .8-4.1-3.1-2.9 4.2-.5z" />
   </svg>
 );
+export const WishesGlyph = (p: P) => (
+  <svg viewBox="0 0 40 40" {...fill(p)}>
+    <path d="M4 10a3 3 0 0 1 3-3h26a3 3 0 0 1 3 3v20a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V10z" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M4 11l16 11 16-11" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M20 20l1.2 2.8 3 .4-2.2 2.1.5 3-2.5-1.4-2.5 1.4.5-3-2.2-2.1 3-.4z" />
+  </svg>
+);
 export const GuestsGlyph = (p: P) => (
   <svg viewBox="0 0 48 32" {...fill(p)}>
     <circle cx="15" cy="8" r="6" /><path d="M3 30c0-8 5-13 12-13s12 5 12 13z" />

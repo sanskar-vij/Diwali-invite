@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 /* ---------------- Peacock Feather (Mor Pankh) ---------------- */
 export function PeacockFeather({ size = 48, className = '' }: { size?: number; className?: string }) {
   const w = size;

@@ -3,16 +3,16 @@ import { useRef, useState, type ReactNode } from 'react';
 import palace from '../assets/palace.jpg';
 import { festiveAudio } from '../audio';
 import Diya from '../components/Diya';
-import { CowGlyph, CoupleGlyph, DiyaGlyph, InviteGlyph } from '../components/Icons';
+import { CowGlyph, CoupleGlyph, DiyaGlyph, WishesGlyph } from '../components/Icons';
 import { Divider, PageFrame, SparkleField } from '../components/Ornaments';
 import type { PageId } from '../config';
 import { celebrate, useApp } from '../context';
 
 const CARDS: { id: PageId; label: ReactNode; icon: ReactNode; sr: string; date: string }[] = [
-  { id: 'diwali', label: 'Diwali', icon: <DiyaGlyph width={38} height={32} />, sr: 'Diwali Celebration', date: 'Sat, 24 Oct' },
-  { id: 'govardhan', label: <>Govardhan<br />Puja</>, icon: <CowGlyph width={44} height={32} />, sr: 'Govardhan Puja', date: 'Mon, 26 Oct' },
-  { id: 'bhaidooj', label: 'Bhai Dooj', icon: <CoupleGlyph width={38} height={32} />, sr: 'Bhai Dooj Celebration', date: 'Sun, 25 Oct' },
-  { id: 'rsvp', label: 'Join Us', icon: <InviteGlyph width={32} height={32} />, sr: 'RSVP Form', date: 'Kindly RSVP' },
+  { id: 'diwali', label: 'Diwali', icon: <DiyaGlyph width={38} height={32} />, sr: 'Diwali Celebration', date: 'Sun, 8 Nov' },
+  { id: 'govardhan', label: <>Govardhan<br />Puja</>, icon: <CowGlyph width={44} height={32} />, sr: 'Govardhan Puja', date: 'Mon, 9 Nov' },
+  { id: 'bhaidooj', label: 'Bhai Dooj', icon: <CoupleGlyph width={38} height={32} />, sr: 'Bhai Dooj Celebration', date: 'Wed, 11 Nov' },
+  { id: 'rsvp', label: 'Wishes', icon: <WishesGlyph width={32} height={32} />, sr: 'Send Festive Wishes', date: 'Send Wishes' },
 ];
 
 export default function Home({ ready }: { ready: boolean }) {
@@ -47,8 +47,8 @@ export default function Home({ ready }: { ready: boolean }) {
           You are cordially invited to our
         </motion.p>
         <motion.h1 {...show(0.35)} className="mt-0.5 leading-none">
-          <span className="gold-text gold-glow-pulse block font-script text-[clamp(48px,15vw,84px)] leading-[0.95] sm:text-[120px] lg:text-[140px]">Diwali</span>
-          <span className="gold-text gold-glow-pulse -mt-0.5 block font-script text-[clamp(34px,10.5vw,56px)] leading-[1.05] sm:text-[80px] lg:text-[92px]">Celebrations</span>
+          <span className="gold-text gold-glow-pulse block font-script text-[clamp(48px,15vw,84px)] leading-[0.95] sm:text-[100px] lg:text-[120px]">Diwali</span>
+          <span className="gold-text gold-glow-pulse -mt-0.5 block font-script text-[clamp(34px,10.5vw,56px)] leading-[1.05] sm:text-[66px] lg:text-[78px]">Celebrations</span>
         </motion.h1>
         <motion.div {...show(0.6)}><Divider className="my-2.5 sm:my-3" /></motion.div>
         <motion.p {...show(0.75)} className="text-shadow-soft mx-auto max-w-xs font-serif text-[16.5px] leading-snug text-[#fdeccb] sm:max-w-md sm:text-2xl">

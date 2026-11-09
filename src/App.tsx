@@ -56,9 +56,7 @@ export default function App() {
   const [introDone, setIntroDone] = useState(false);
   const [sound, setSound] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  // Default to mobile view on desktop so the user immediately gets their requested mobile view!
-  const [viewMode, setViewMode] = useState<'mobile' | 'full'>('mobile');
-  const [reduced, setReduced] = useState(() => {
+  const [reduced] = useState(() => {
     try {
       const saved = localStorage.getItem('reduced-motion');
       if (saved !== null) return saved === '1';
@@ -67,10 +65,6 @@ export default function App() {
     }
     return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   });
-
-  const toggleViewMode = useCallback(() => {
-    setViewMode((v) => (v === 'mobile' ? 'full' : 'mobile'));
-  }, []);
 
   const go = useCallback((targetId: PageId) => {
     setPage(targetId);
@@ -165,32 +159,14 @@ export default function App() {
     }
   };
 
-  const isMobileFrame = viewMode === 'mobile';
-
   return (
-    <AppContext.Provider value={{ page, go, reduced, viewMode, toggleViewMode }}>
+    <AppContext.Provider value={{ page, go, reduced }}>
       <Sky />
       <Fireworks intensity={introDone ? FIREWORK_INTENSITY[page] : 0} reduced={reduced} />
       {!reduced && <Petals count={page === 'govardhan' ? 18 : 14} />}
 
-      {/* Main Container: On desktop in Mobile View mode, presents as an authentic royal smartphone frame */}
-      <div
-        className={
-          isMobileFrame
-            ? 'relative mx-auto my-0 sm:my-6 min-h-screen w-full max-w-[430px] rounded-none sm:rounded-[48px] border-0 sm:border-[5px] sm:border-gold-400/80 sm:shadow-[0_0_80px_rgba(255,190,80,0.35),0_0_0_10px_#180830,0_0_0_12px_#b98327] overflow-hidden bg-royal-950 transition-all duration-300'
-            : 'relative w-full transition-all duration-300'
-        }
-      >
-        {/* Dynamic Island phone speaker notch (visible on desktop in mobile frame mode) */}
-        {isMobileFrame && (
-          <div className="hidden sm:flex justify-center pt-2.5 pb-1 relative z-50 pointer-events-none">
-            <div className="h-4 w-24 rounded-full bg-black/90 border border-gold-500/40 shadow-inner flex items-center justify-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-royal-950/80 border border-gold-400/40" />
-              <span className="h-1 w-6 rounded-full bg-royal-900/80" />
-            </div>
-          </div>
-        )}
-
+      {/* Main Container: Fully responsive luxury experience across mobile, tablets, and laptops */}
+      <div className="relative w-full min-h-screen transition-all duration-300">
         {introDone && <Nav />}
 
         {/* Continuous vertical scrollable festival sections */}

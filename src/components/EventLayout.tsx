@@ -65,10 +65,10 @@ export default function EventLayout({
           transition={{ duration: 0.9, delay: 0.15 }}
           className="leading-none"
         >
-          <span className={`${textClass} gold-glow-pulse block font-script text-[clamp(44px,13vw,68px)] leading-[1.05] sm:text-[92px] lg:text-[104px]`}>
+          <span className={`${textClass} gold-glow-pulse block font-script text-[clamp(44px,13vw,68px)] leading-[1.05] sm:text-[76px] lg:text-[88px]`}>
             {title}
           </span>
-          <span className={`${textClass} mt-1 block font-script text-[clamp(24px,7.5vw,34px)] leading-tight sm:text-[48px]`}>
+          <span className={`${textClass} mt-1 block font-script text-[clamp(24px,7.5vw,34px)] leading-tight sm:text-[36px] lg:text-[42px]`}>
             {subtitle}
           </span>
         </motion.h1>

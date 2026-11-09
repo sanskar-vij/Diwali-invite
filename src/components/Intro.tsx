@@ -5,11 +5,11 @@ import { LotusLogo } from './Icons';
 
 interface IntroProps {
   onDone: () => void;
-  onStartAudio: () => void;
+  onStartAudio?: () => void;
 }
 
 /** Redesigned Clickable Royal Opening Page: Tap anywhere to light up celebration and start music */
-export default function Intro({ onDone, onStartAudio }: { onDone: () => void; onStartAudio?: () => void }) {
+export default function Intro({ onDone, onStartAudio }: IntroProps) {
   const [lit, setLit] = useState(false);
 
   const particles = useMemo(

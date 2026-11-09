@@ -16,7 +16,7 @@ const FEATURES = [
   {
     n: '02',
     title: 'Interactive Experiences',
-    text: 'Rich festive animations, interactive diya lighting, custom audio, RSVP tracking, and seamless guest sharing.',
+    text: 'Rich festive animations, interactive diya lighting, custom audio, festive wishes sharing, and seamless guest greetings.',
     icon: <ImageGlyph width={34} height={34} />,
   },
   {

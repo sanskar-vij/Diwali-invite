@@ -3,33 +3,61 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import rsvpArt from '../assets/rsvp-celebration.jpg';
 import Diya from '../components/Diya';
-import { CloseIcon, GuestsGlyph } from '../components/Icons';
+import { CloseIcon, WishesGlyph } from '../components/Icons';
 import { Divider, PageFrame } from '../components/Ornaments';
 import Reveal from '../components/Reveal';
 import { INVITE } from '../config';
 import { celebrate } from '../context';
 
-type Status = 'yes' | 'no';
-interface Rsvp { name: string; guests: number; status: Status }
+interface WishEntry {
+  name: string;
+  message: string;
+  city?: string;
+}
+
+const PRESET_WISHES = [
+  '🪔 Wishing you and your family a blessed, glowing, and prosperous Diwali!',
+  '✨ May Goddess Lakshmi shower boundless joy, health, and wealth upon your home!',
+  '💖 Warm festive greetings on Diwali, Govardhan Puja & Bhai Dooj to your family!',
+  '🌸 May the divine lights illuminate your path with eternal peace and happiness!',
+];
 
 function Celebration() {
-  const bits = useMemo(() => Array.from({ length: 36 }, () => ({ a: Math.random() * Math.PI * 2, r: 80 + Math.random() * 160, s: 3 + Math.random() * 5, d: Math.random() * 0.3, c: Math.random() < 0.6 ? '#ffd36b' : Math.random() < 0.5 ? '#ff8fcf' : '#ffb347' })), []);
+  const bits = useMemo(
+    () =>
+      Array.from({ length: 36 }, () => ({
+        a: Math.random() * Math.PI * 2,
+        r: 80 + Math.random() * 160,
+        s: 3 + Math.random() * 5,
+        d: Math.random() * 0.3,
+        c: Math.random() < 0.6 ? '#ffd36b' : Math.random() < 0.5 ? '#ff8fcf' : '#ffb347',
+      })),
+    [],
+  );
   return (
     <div className="pointer-events-none absolute left-1/2 top-16" aria-hidden="true">
       {bits.map((b, i) => (
-        <motion.span key={i} className="absolute rounded-full" style={{ width: b.s, height: b.s, background: b.c, boxShadow: `0 0 8px ${b.c}` }}
+        <motion.span
+          key={i}
+          className="absolute rounded-full"
+          style={{ width: b.s, height: b.s, background: b.c, boxShadow: `0 0 8px ${b.c}` }}
           initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
           animate={{ x: Math.cos(b.a) * b.r, y: Math.sin(b.a) * b.r + 60, opacity: 0, scale: 0.4 }}
-          transition={{ duration: 1.8, delay: b.d, ease: 'easeOut' }} />
+          transition={{ duration: 1.8, delay: b.d, ease: 'easeOut' }}
+        />
       ))}
     </div>
   );
 }
 
-function RsvpModal({ onClose }: { onClose: () => void }) {
-  const [form, setForm] = useState<Rsvp>({ name: '', guests: 1, status: 'yes' });
+function WishesModal({ onClose }: { onClose: () => void }) {
+  const [form, setForm] = useState<WishEntry>({
+    name: '',
+    message: PRESET_WISHES[0],
+    city: '',
+  });
   const [error, setError] = useState('');
-  const [done, setDone] = useState<Rsvp | null>(null);
+  const [done, setDone] = useState<WishEntry | null>(null);
   const firstRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -37,91 +65,172 @@ function RsvpModal({ onClose }: { onClose: () => void }) {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
   }, [onClose]);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const name = form.name.trim();
+    const message = form.message.trim();
     if (name.length < 2) return setError('Please enter your name.');
-    if (form.status === 'yes' && (form.guests < 1 || form.guests > 20)) return setError('Number of guests should be between 1 and 20.');
+    if (message.length < 3) return setError('Please enter your festive wish or greeting.');
     setError('');
-    const entry = { ...form, name };
-    // No backend is configured: keep a local copy on this device only.
+    const entry: WishEntry = { ...form, name, message };
+
     try {
-      const prev = JSON.parse(localStorage.getItem('diwali-rsvp') || '[]');
-      localStorage.setItem('diwali-rsvp', JSON.stringify([...prev, { ...entry, at: new Date().toISOString() }]));
-    } catch { /* storage unavailable */ }
+      const prev = JSON.parse(localStorage.getItem('diwali-wishes') || '[]');
+      localStorage.setItem('diwali-wishes', JSON.stringify([...prev, { ...entry, at: new Date().toISOString() }]));
+    } catch {
+      /* storage unavailable */
+    }
     setDone(entry);
-    if (entry.status === 'yes') celebrate(window.innerWidth / 2, window.innerHeight * 0.22, 3);
+    celebrate(window.innerWidth / 2, window.innerHeight * 0.22, 3);
   };
 
-  const message = done
-    ? `Namaste! This is ${done.name}. ${done.status === 'yes' ? `We will be attending the Diwali celebrations — ${done.guests} guest${done.guests > 1 ? 's' : ''}.` : 'Sadly, we are unable to attend the Diwali celebrations. Wishing you a very Happy Diwali!'}`
+  const shareText = done
+    ? `Shubh Deepavali! 🪔✨ Warm festive wishes from ${done.name}${done.city ? ` (${done.city})` : ''} to ${INVITE.familyName}:\n\n"${done.message}"\n\nWishing you a joyous celebration!`
     : '';
-  const waLink = `https://wa.me/${INVITE.rsvpWhatsApp}?text=${encodeURIComponent(message)}`;
+  const waTarget = INVITE.rsvpWhatsApp ? `https://wa.me/${INVITE.rsvpWhatsApp}?text=${encodeURIComponent(shareText)}` : `https://wa.me/?text=${encodeURIComponent(shareText)}`;
 
   return (
-    <motion.div className="fixed inset-0 z-[90] flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-modal="true" aria-labelledby="rsvp-title">
+    <motion.div
+      className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="wishes-title"
+    >
       <div className="absolute inset-0 bg-royal-950/80 backdrop-blur-md" onClick={onClose} />
       <motion.div
-        initial={{ y: 40, scale: 0.92, opacity: 0 }} animate={{ y: 0, scale: 1, opacity: 1 }} exit={{ y: 30, scale: 0.95, opacity: 0 }}
+        initial={{ y: 40, scale: 0.92, opacity: 0 }}
+        animate={{ y: 0, scale: 1, opacity: 1 }}
+        exit={{ y: 30, scale: 0.95, opacity: 0 }}
         transition={{ type: 'spring', damping: 22, stiffness: 240 }}
-        className="relative max-h-[92svh] w-full max-w-md overflow-y-auto rounded-[24px] sm:rounded-[28px] border-2 border-gold-400 bg-gradient-to-b from-royal-800 to-royal-950 px-4 sm:px-6 pb-6 pt-7 shadow-[0_0_50px_rgba(255,190,80,.35),inset_0_0_0_5px_rgba(26,11,51,.9),inset_0_0_0_6px_#b98327]"
+        className="relative max-h-[92svh] w-full max-w-lg overflow-y-auto rounded-[24px] sm:rounded-[30px] border-2 border-gold-400 bg-gradient-to-b from-royal-900 to-royal-950 px-4 sm:px-7 pb-6 pt-7 shadow-[0_0_50px_rgba(255,190,80,.35),inset_0_0_0_5px_rgba(26,11,51,.9),inset_0_0_0_6px_#b98327]"
       >
-        <button onClick={onClose} className="absolute right-3.5 top-3.5 grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-full border border-gold-400/60 text-gold-300 hover:bg-gold-400/10 cursor-pointer" aria-label="Close RSVP form"><CloseIcon /></button>
+        <button
+          onClick={onClose}
+          className="absolute right-3.5 top-3.5 grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-full border border-gold-400/60 text-gold-300 hover:bg-gold-400/10 cursor-pointer"
+          aria-label="Close wishes form"
+        >
+          <CloseIcon />
+        </button>
+
         {!done ? (
           <form onSubmit={submit} noValidate>
-            <h2 id="rsvp-title" className="gold-text text-center font-script text-4xl sm:text-5xl leading-tight">Kindly RSVP</h2>
+            <h2 id="wishes-title" className="gold-text text-center font-script text-4xl sm:text-5xl leading-tight">
+              Send Festive Wishes
+            </h2>
+            <p className="mt-1 text-center font-serif text-sm sm:text-base text-gold-300/80">
+              Share your love &amp; blessings with {INVITE.familyName}
+            </p>
             <Divider className="my-2.5 sm:my-3" />
+
             <label className="mt-3.5 block">
-              <span className="mb-1 block text-base sm:text-lg text-gold-300">Guest Name</span>
-              <input ref={firstRef} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoComplete="name" required placeholder="Your full name"
-                className="w-full rounded-xl border border-gold-500/60 bg-royal-950/60 px-3.5 py-2.5 text-base sm:text-lg text-gold-200 placeholder:text-gold-300/40 outline-none focus:border-gold-300 focus:shadow-[0_0_14px_rgba(255,190,80,.35)]" />
+              <span className="mb-1 block text-sm sm:text-base text-gold-300 font-semibold">Your Name *</span>
+              <input
+                ref={firstRef}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                autoComplete="name"
+                required
+                placeholder="e.g. Rahul & Priya Sharma"
+                className="w-full rounded-xl border border-gold-500/60 bg-royal-950/60 px-3.5 py-2.5 text-base sm:text-lg text-gold-200 placeholder:text-gold-300/40 outline-none focus:border-gold-300 focus:shadow-[0_0_14px_rgba(255,190,80,.35)]"
+              />
             </label>
-            <fieldset className="mt-4">
-              <legend className="mb-1.5 text-base sm:text-lg text-gold-300">Will you join us?</legend>
-              <div className="grid grid-cols-2 gap-2.5">
-                {([['yes', 'Attending'], ['no', 'Unable to Attend']] as const).map(([v, l]) => (
-                  <label key={v} className={`cursor-pointer rounded-xl border px-2.5 py-2.5 text-center text-[15px] sm:text-[17px] transition ${form.status === v ? 'border-gold-300 bg-gold-400/15 text-gold-200 shadow-[0_0_14px_rgba(255,190,80,.35)]' : 'border-gold-500/40 text-gold-300/80 hover:border-gold-400'}`}>
-                    <input type="radio" name="status" value={v} checked={form.status === v} onChange={() => setForm({ ...form, status: v })} className="sr-only" />
-                    {l}
-                  </label>
+
+            <label className="mt-3 block">
+              <span className="mb-1 block text-sm sm:text-base text-gold-300 font-semibold">Your City / Location (Optional)</span>
+              <input
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                placeholder="e.g. New Delhi, Mumbai, London"
+                className="w-full rounded-xl border border-gold-500/60 bg-royal-950/60 px-3.5 py-2 text-base text-gold-200 placeholder:text-gold-300/40 outline-none focus:border-gold-300"
+              />
+            </label>
+
+            {/* Quick-pick preset wishes buttons */}
+            <div className="mt-4">
+              <span className="mb-1.5 block text-xs sm:text-sm text-gold-300/90 uppercase tracking-wider font-semibold">
+                Tap a Quick Wish or Type Below:
+              </span>
+              <div className="flex flex-col gap-1.5">
+                {PRESET_WISHES.map((pw, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setForm({ ...form, message: pw })}
+                    className={`text-left text-xs sm:text-[13px] rounded-lg px-2.5 py-2 transition border cursor-pointer ${
+                      form.message === pw
+                        ? 'border-gold-300 bg-gold-400/20 text-gold-100 shadow-[0_0_10px_rgba(255,190,80,.25)]'
+                        : 'border-gold-500/30 bg-royal-950/40 text-gold-300/75 hover:border-gold-400/70 hover:text-gold-200'
+                    }`}
+                  >
+                    {pw}
+                  </button>
                 ))}
               </div>
-            </fieldset>
-            <AnimatePresence initial={false}>
-              {form.status === 'yes' && (
-                <motion.label className="mt-4 block overflow-hidden" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-                  <span className="mb-1.5 block text-base sm:text-lg text-gold-300">Number of Guests</span>
-                  <div className="flex items-center gap-3">
-                    <button type="button" onClick={() => setForm({ ...form, guests: Math.max(1, form.guests - 1) })} className="h-11 w-11 rounded-xl border border-gold-500/60 text-xl text-gold-300 hover:bg-gold-400/10 cursor-pointer" aria-label="Decrease guests">−</button>
-                    <input type="number" min={1} max={20} value={form.guests} onChange={(e) => setForm({ ...form, guests: Number(e.target.value) || 1 })}
-                      className="h-11 w-full rounded-xl border border-gold-500/60 bg-royal-950/60 text-center text-lg sm:text-xl text-gold-200 outline-none focus:border-gold-300" aria-label="Number of guests" />
-                    <button type="button" onClick={() => setForm({ ...form, guests: Math.min(20, form.guests + 1) })} className="h-11 w-11 rounded-xl border border-gold-500/60 text-xl text-gold-300 hover:bg-gold-400/10 cursor-pointer" aria-label="Increase guests">+</button>
-                  </div>
-                </motion.label>
-              )}
-            </AnimatePresence>
+            </div>
+
+            <label className="mt-3.5 block">
+              <span className="mb-1 block text-sm sm:text-base text-gold-300 font-semibold">Your Custom Message / Blessing *</span>
+              <textarea
+                rows={3}
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                required
+                placeholder="Write your personal Diwali blessing..."
+                className="w-full rounded-xl border border-gold-500/60 bg-royal-950/60 px-3.5 py-2.5 text-sm sm:text-base text-gold-200 placeholder:text-gold-300/40 outline-none focus:border-gold-300 focus:shadow-[0_0_14px_rgba(255,190,80,.35)] resize-none"
+              />
+            </label>
+
             {error && <p role="alert" className="mt-3 text-center text-sm text-[#ffb4b4]">{error}</p>}
-            <button type="submit" className="gold-btn mt-6 w-full rounded-full py-3 font-serif text-lg sm:text-xl font-bold tracking-wide cursor-pointer active:scale-98">Submit RSVP</button>
+            <button
+              type="submit"
+              className="gold-btn mt-5 w-full rounded-full py-3 font-serif text-lg sm:text-xl font-bold tracking-wide cursor-pointer active:scale-98"
+            >
+              Send Festive Wishes ✨
+            </button>
           </form>
         ) : (
           <div className="relative text-center" aria-live="polite">
             <Celebration />
-            <div className="mx-auto mt-2 flex justify-center"><Diya size={80} igniting sparks={6} reflection={false} /></div>
-            <h2 id="rsvp-title" className="gold-text mt-3 font-script text-5xl leading-tight">{done.status === 'yes' ? 'Thank You!' : 'You’ll Be Missed'}</h2>
+            <div className="mx-auto mt-2 flex justify-center">
+              <Diya size={80} igniting sparks={6} reflection={false} />
+            </div>
+            <h2 id="wishes-title" className="gold-text mt-3 font-script text-4xl sm:text-5xl leading-tight">
+              Thank You!
+            </h2>
             <Divider className="my-3" />
             <p className="text-xl leading-snug text-gold-200">
-              {done.status === 'yes'
-                ? <>Dear <strong className="text-gold-300">{done.name}</strong>, we are delighted! We look forward to celebrating with {done.guests > 1 ? `your party of ${done.guests}` : 'you'}.</>
-                : <>Dear <strong className="text-gold-300">{done.name}</strong>, thank you for letting us know. Wishing you a very Happy Diwali!</>}
+              Dear <strong className="text-gold-300">{done.name}</strong>, thank you for your heartwarming wishes and blessings!
             </p>
-            <p className="mt-4 rounded-xl border border-gold-500/40 bg-royal-950/50 px-4 py-3 text-[15px] leading-snug text-gold-300/85">
-              Your response has been noted on this device only. Please send it to {INVITE.familyName} so they receive it:
+            <p className="mt-3 italic font-serif text-base text-gold-300/90 max-w-sm mx-auto">
+              “{done.message}”
             </p>
-            <a href={waLink} target="_blank" rel="noopener noreferrer" className="gold-btn mt-5 inline-flex w-full items-center justify-center rounded-full py-3 font-serif text-lg font-bold">Send RSVP via WhatsApp</a>
-            <button onClick={onClose} className="mt-3 w-full rounded-full border border-gold-400/60 py-3 text-lg text-gold-300 hover:bg-gold-400/10">Close</button>
+            <div className="mt-5 rounded-xl border border-gold-500/40 bg-royal-950/50 p-3 text-sm text-gold-300/90">
+              Your wishes have been recorded with warmth and devotion! You can also share them directly with {INVITE.familyName} on WhatsApp:
+            </div>
+            <a
+              href={waTarget}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="gold-btn mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full py-3 font-serif text-lg font-bold"
+            >
+              <span>Share Wishes via WhatsApp</span>
+              <span className="text-base">↗</span>
+            </a>
+            <button
+              onClick={onClose}
+              className="mt-3 w-full rounded-full border border-gold-400/60 py-2.5 text-base text-gold-300 hover:bg-gold-400/10 cursor-pointer"
+            >
+              Close
+            </button>
           </div>
         )}
       </motion.div>
@@ -132,23 +241,38 @@ function RsvpModal({ onClose }: { onClose: () => void }) {
 export default function RsvpPage() {
   const [open, setOpen] = useState(false);
   const fade = 'linear-gradient(to bottom, transparent 0%, black 30%, black 85%, transparent 100%)';
+
   return (
     <PageFrame id="rsvp" theme="royal">
-      <div className="relative z-[7] px-3 pt-[72px] text-center sm:px-5 sm:pt-[124px] lg:pt-[140px]">
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.1 }} className="gold-text gold-glow-pulse font-script text-[clamp(40px,12vw,58px)] leading-[1.1] sm:text-[78px]">
-          Join Us for<br />a Joyous Celebration!
+      <div className="relative z-[7] px-3 pt-[72px] text-center sm:px-5 sm:pt-[118px] lg:pt-[130px]">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.1 }}
+          className="gold-text gold-glow-pulse font-script text-[clamp(40px,12vw,58px)] leading-[1.1] sm:text-[76px]"
+        >
+          Send Your Warm<br />Wishes &amp; Blessings
         </motion.h1>
         <Divider className="my-2.5 sm:my-3" />
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-shadow-soft mx-auto max-w-[19rem] text-[17px] sm:text-[20px] leading-snug text-[#fdeccb] sm:max-w-md">
-          Your presence will make our festivities even more special.
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-shadow-soft mx-auto max-w-[21rem] text-[17px] sm:text-[21px] leading-snug text-[#fdeccb] sm:max-w-xl"
+        >
+          Share your heartfelt prayers, love, and festive greetings with {INVITE.familyName}.
         </motion.p>
         <Reveal delay={0.5}>
-          <button onClick={() => setOpen(true)} className="gold-btn shimmer-border mt-5 sm:mt-7 inline-flex items-center gap-2.5 sm:gap-3 rounded-2xl px-8 py-3 sm:px-12 sm:py-4 font-serif text-[22px] sm:text-[28px] font-bold tracking-wider cursor-pointer active:scale-95" aria-haspopup="dialog">
-            <GuestsGlyph width={32} height={22} /> RSVP
+          <button
+            onClick={() => setOpen(true)}
+            className="gold-btn shimmer-border mt-5 sm:mt-7 inline-flex items-center gap-2.5 sm:gap-3 rounded-2xl px-8 py-3.5 sm:px-12 sm:py-4 font-serif text-[21px] sm:text-[26px] font-bold tracking-wider cursor-pointer active:scale-95 shadow-[0_0_28px_rgba(255,190,80,.45)]"
+            aria-haspopup="dialog"
+          >
+            <WishesGlyph width={30} height={26} /> Send Wishes
           </button>
         </Reveal>
         <Reveal delay={0.6}>
-          <p className="mt-5 sm:mt-7 text-lg sm:text-xl text-gold-200">With warm regards,</p>
+          <p className="mt-5 sm:mt-7 text-lg sm:text-xl text-gold-200">With warmest regards &amp; devotion,</p>
           <p className="gold-text font-script text-[32px] sm:text-[38px] leading-tight lg:text-5xl">{INVITE.familyName}</p>
         </Reveal>
       </div>
@@ -169,7 +293,12 @@ export default function RsvpPage() {
         </div>
       </div>
 
-      {createPortal(<AnimatePresence>{open && <RsvpModal onClose={() => setOpen(false)} />}</AnimatePresence>, document.body)}
+      {createPortal(
+        <AnimatePresence>
+          {open && <WishesModal onClose={() => setOpen(false)} />}
+        </AnimatePresence>,
+        document.body,
+      )}
     </PageFrame>
   );
 }

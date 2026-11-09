@@ -5,16 +5,12 @@ export interface AppCtx {
   page: PageId;
   go: (p: PageId) => void;
   reduced: boolean;
-  viewMode: 'mobile' | 'full';
-  toggleViewMode: () => void;
 }
 
 export const AppContext = createContext<AppCtx>({
   page: 'home',
   go: () => {},
   reduced: false,
-  viewMode: 'mobile',
-  toggleViewMode: () => {},
 });
 export const useApp = () => useContext(AppContext);
 

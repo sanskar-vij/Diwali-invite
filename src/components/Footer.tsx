@@ -1,6 +1,6 @@
 import Diya from './Diya';
 import { Divider, SparkleField } from './Ornaments';
-import { PAGES, type PageId, INVITE } from '../config';
+import { PAGES, INVITE } from '../config';
 import { useApp } from '../context';
 
 export default function Footer() {
@@ -35,7 +35,7 @@ export default function Footer() {
             onClick={() => go('diwali')}
             className="cursor-pointer rounded-2xl border border-gold-500/30 bg-royal-950/50 p-3.5 transition hover:border-gold-300 hover:bg-gold-400/10"
           >
-            <p className="text-sm uppercase tracking-wider text-gold-400 font-sans">24 October 2026</p>
+            <p className="text-sm uppercase tracking-wider text-gold-400 font-sans">8 November 2026</p>
             <h4 className="font-serif text-xl font-bold text-gold-200">Diwali</h4>
             <p className="text-xs text-gold-300/70">Maha Lakshmi Puja &amp; Deepotsav</p>
           </div>
@@ -44,7 +44,7 @@ export default function Footer() {
             onClick={() => go('govardhan')}
             className="cursor-pointer rounded-2xl border border-emerald-500/30 bg-emerald-950/30 p-3.5 transition hover:border-emerald-300 hover:bg-emerald-400/10"
           >
-            <p className="text-sm uppercase tracking-wider text-emerald-400 font-sans">26 October 2026</p>
+            <p className="text-sm uppercase tracking-wider text-emerald-400 font-sans">9 November 2026</p>
             <h4 className="font-serif text-xl font-bold text-emerald-200">Govardhan Puja</h4>
             <p className="text-xs text-emerald-300/70">Annakut &amp; Krishna Bhakti</p>
           </div>
@@ -53,7 +53,7 @@ export default function Footer() {
             onClick={() => go('bhaidooj')}
             className="cursor-pointer rounded-2xl border border-rose-500/30 bg-rose-950/30 p-3.5 transition hover:border-rose-300 hover:bg-rose-400/10"
           >
-            <p className="text-sm uppercase tracking-wider text-rose-400 font-sans">25 October 2026</p>
+            <p className="text-sm uppercase tracking-wider text-rose-400 font-sans">11 November 2026</p>
             <h4 className="font-serif text-xl font-bold text-rose-200">Bhai Dooj</h4>
             <p className="text-xs text-rose-300/70">Yama Dwitiya &amp; Sibling Love</p>
           </div>
